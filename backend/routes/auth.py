@@ -26,13 +26,7 @@ class Register(Resource):
         if user:
             return {'msg': 'email already registered'}, 400
 
-        user = User(
-            name=name,
-            email=email,
-            password=password,
-            role='trekker',
-            is_active=True
-        )
+        user = User(name=name, email=email, password=password, role='trekker', is_active=True)
 
         db.session.add(user)
         db.session.commit()

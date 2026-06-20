@@ -5,6 +5,8 @@ from routes import admin, auth, staff, trekker
 from config import Config
 from extensions import db, api, jwt
 
+from datetime import date
+
 
 def create_admin_user():
     from models.user import User
@@ -21,6 +23,42 @@ def create_admin_user():
         )
         db.session.add(admin)
         db.session.commit()
+
+def create_sample_treks():
+
+    from models.trek import Trek
+
+    if Trek.query.first():
+        return
+
+    trek1 = Trek(
+        name="Valley Trek",
+        location="Himachal Pradesh",
+        difficulty="Easy",
+        duration_days=3,
+        description="Beautiful valley trek",
+        available_slots=25,
+        start_date=date(2026, 7, 1),
+        end_date=date(2026, 7, 3),
+        status="Open"
+    )
+
+    trek2 = Trek(
+        name="Snow Peak Trek",
+        location="Kashmir",
+        difficulty="Hard",
+        duration_days=5,
+        description="Snow covered mountain trek",
+        available_slots=15,
+        start_date=date(2026, 8, 10),
+        end_date=date(2026, 8, 14),
+        status="Open"
+    )
+
+    db.session.add(trek1)
+    db.session.add(trek2)
+
+    db.session.commit()
 
 def register_routes():
     pass
@@ -39,6 +77,8 @@ def create_app():
     
     with app.app_context():
         db.create_all()
+
         create_admin_user()
+        create_sample_treks()
     
     return app
