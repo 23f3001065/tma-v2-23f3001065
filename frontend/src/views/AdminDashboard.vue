@@ -464,20 +464,25 @@
 
         </p>
 
-        <button
+        <p>
 
-            v-if="user.role !== 'admin' && user.is_active"
-            @click="deactivateUser(user.id)"
-        >
-            Deactivate
+            Status :
 
-        </button>
-
-        <p v-if="!user.is_active">
-
-            User Deactivated
+            {{ user.is_active ? 'Active' : 'Inactive' }}
 
         </p>
+
+        <button
+
+            v-if="user.role !== 'admin'"
+
+            @click="toggleUserStatus(user)"
+
+        >
+
+            {{ user.is_active ? 'Deactivate' : 'Activate' }}
+
+        </button>
 
         <hr>
 
@@ -986,13 +991,22 @@ export default {
         }
       },
 
-    async deactivateUser(userId) {
+async toggleUserStatus(user) {
 
-        if (!confirm('Deactivate this user?')) {
+    const action =
+        user.is_active
+            ? 'Deactivate'
+            : 'Activate'
 
-            return
+    if (
+        !confirm(`${action} this user?`)
+    ) {
 
-        }
+        return
+
+    }
+
+    try {
 
         const token =
             localStorage.getItem('token')
@@ -1000,19 +1014,18 @@ export default {
         const response =
             await axios.put(
 
-                `http://127.0.0.1:5000/admin/users/${userId}`,
-
-                {},
+                `http://127.0.0.1:5000/admin/users/${user.id}`,
 
                 {
+                    is_active:
+                        !user.is_active
+                },
 
+                {
                     headers: {
-
                         Authorization:
                             `Bearer ${token}`
-
                     }
-
                 }
 
             )
@@ -1023,9 +1036,32 @@ export default {
         alert(this.message)
 
         await this.fetchUsers()
+
         await this.fetchDashboard()
 
-    },
+    }
+
+    catch (error) {
+
+        if (error.response) {
+
+            this.message =
+                error.response.data.msg
+
+        }
+
+        else {
+
+            this.message =
+                'Server error'
+
+        }
+
+        alert(this.message)
+
+    }
+
+},
 
     async assignStaff() {
 

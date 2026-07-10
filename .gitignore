@@ -6,6 +6,7 @@ node_modules/
 __pycache__/
 *.pyc
 
+backend/flask-app.py
 backend/database/*.db
 
 backend/database/*.db

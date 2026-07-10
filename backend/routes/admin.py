@@ -216,12 +216,25 @@ class AdminUserDetail(Resource):
                 'msg': 'user not found'
             }, 404
 
-        user.is_active = False
+        data = request.get_json() or {}
+
+        user.is_active = data.get(
+            'is_active',
+            user.is_active
+        )
 
         db.session.commit()
 
+        if user.is_active:
+
+            msg = 'user activated'
+
+        else:
+
+            msg = 'user deactivated'
+
         return {
-            'msg': 'user deactivated'
+            'msg': msg
         }, 200
 
 
