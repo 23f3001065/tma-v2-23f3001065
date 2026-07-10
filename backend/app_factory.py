@@ -38,8 +38,8 @@ def create_sample_treks():
         duration_days=3,
         description="Beautiful valley trek",
         available_slots=25,
-        start_date=date(2026, 7, 1),
-        end_date=date(2026, 7, 3),
+        start_date=date(2026, 9, 1),
+        end_date=date(2026, 9, 3),
         status="Open"
     )
 
@@ -50,8 +50,8 @@ def create_sample_treks():
         duration_days=5,
         description="Snow covered mountain trek",
         available_slots=15,
-        start_date=date(2026, 8, 10),
-        end_date=date(2026, 8, 14),
+        start_date=date(2026, 9, 10),
+        end_date=date(2026, 9, 14),
         status="Open"
     )
 

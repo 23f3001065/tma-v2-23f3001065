@@ -66,8 +66,16 @@ class Trek(db.Model):
 
     def __repr__(self):
         return f"<Trek {self.name}>"
-        
+    
+
     def to_json(self):
+
+        staff_name = None
+
+        if self.staff_profile:
+            if self.staff_profile.user:
+                staff_name = self.staff_profile.user.name
+
         return {
             "id": self.id,
             "name": self.name,
@@ -78,5 +86,7 @@ class Trek(db.Model):
             "available_slots": self.available_slots,
             "start_date": str(self.start_date),
             "end_date": str(self.end_date),
-            "status": self.status
+            "status": self.status,
+            "staff_id": self.staff_id,
+            "staff_name": staff_name
         }

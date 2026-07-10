@@ -1,3 +1,6 @@
+from models.staff_profile import StaffProfile
+from datetime import date
+
 from flask_restful import Resource, request
 from flask_jwt_extended import (
     jwt_required,
@@ -5,7 +8,42 @@ from flask_jwt_extended import (
 )
 
 from extensions import api, db
+
 from models.user import User
+from models.trek import Trek
+from models.booking import Booking
+
+
+class AdminDashboard(Resource):
+
+    @jwt_required()
+    def get(self):
+
+        user_id = get_jwt_identity()
+
+        user = User.query.get(user_id)
+
+        if user.role != 'admin':
+            return {
+                'msg': 'access denied'
+            }, 403
+
+        total_users = User.query.count()
+
+        total_staff = User.query.filter_by(
+            role='staff'
+        ).count()
+
+        total_treks = Trek.query.count()
+
+        total_bookings = Booking.query.count()
+
+        return {
+            'total_users': total_users,
+            'total_staff': total_staff,
+            'total_treks': total_treks,
+            'total_bookings': total_bookings
+        }, 200
 
 
 class AdminUserList(Resource):
@@ -29,7 +67,8 @@ class AdminUserList(Resource):
                 'id': u.id,
                 'name': u.name,
                 'email': u.email,
-                'role': u.role
+                'role': u.role,
+                'is_active': u.is_active
             }
             for u in users
         ], 200
@@ -53,13 +92,19 @@ class AdminUserList(Resource):
         password = data.get('password')
 
         if not name:
-            return {'msg': 'name is required'}, 400
+            return {
+                'msg': 'name is required'
+            }, 400
 
         if not email:
-            return {'msg': 'email is required'}, 400
+            return {
+                'msg': 'email is required'
+            }, 400
 
         if not password:
-            return {'msg': 'password is required'}, 400
+            return {
+                'msg': 'password is required'
+            }, 400
 
         existing_user = User.query.filter_by(
             email=email
@@ -81,6 +126,13 @@ class AdminUserList(Resource):
         db.session.add(staff)
         db.session.commit()
 
+        staff_profile = StaffProfile(
+            user_id=staff.id
+        )
+
+        db.session.add(staff_profile)
+        db.session.commit()
+
         return {
             'msg': 'staff created successfully'
         }, 201
@@ -88,19 +140,267 @@ class AdminUserList(Resource):
 
 class AdminTrekList(Resource):
 
+    @jwt_required()
     def get(self):
-        return {'msg': 'list treks endpoint'}, 501
 
+        user_id = get_jwt_identity()
+
+        user = User.query.get(user_id)
+
+        if user.role != 'admin':
+            return {
+                'msg': 'access denied'
+            }, 403
+
+        treks = Trek.query.all()
+
+        return [
+            trek.to_json()
+            for trek in treks
+        ], 200
+
+    @jwt_required()
     def post(self):
-        return {'msg': 'create trek endpoint'}, 501
 
+        user_id = get_jwt_identity()
+
+        user = User.query.get(user_id)
+
+        if user.role != 'admin':
+            return {
+                'msg': 'access denied'
+            }, 403
+
+        data = request.get_json() or {}
+
+        trek = Trek(
+            name=data['name'],
+            location=data['location'],
+            difficulty=data['difficulty'],
+            duration_days=data['duration_days'],
+            description=data['description'],
+            available_slots=data['available_slots'],
+            start_date=date.fromisoformat(
+                data['start_date']
+            ),
+            end_date=date.fromisoformat(
+                data['end_date']
+            )
+        )
+
+        db.session.add(trek)
+        db.session.commit()
+
+        return {
+            'msg': 'trek created successfully'
+        }, 201
+
+class AdminUserDetail(Resource):
+
+    @jwt_required()
+    def put(self, user_id):
+
+        admin = User.query.get(
+            get_jwt_identity()
+        )
+
+        if admin.role != 'admin':
+            return {
+                'msg': 'access denied'
+            }, 403
+
+        user = User.query.get(user_id)
+
+        if not user:
+            return {
+                'msg': 'user not found'
+            }, 404
+
+        user.is_active = False
+
+        db.session.commit()
+
+        return {
+            'msg': 'user deactivated'
+        }, 200
+
+
+class AdminTrekDetail(Resource):
+
+    @jwt_required()
+    def put(self, trek_id):
+
+        admin = User.query.get(
+            get_jwt_identity()
+        )
+
+        if admin.role != 'admin':
+            return {
+                'msg': 'access denied'
+            }, 403
+
+        trek = Trek.query.get(trek_id)
+
+        if not trek:
+            return {
+                'msg': 'trek not found'
+            }, 404
+
+        data = request.get_json() or {}
+
+        trek.name = data.get(
+            'name',
+            trek.name
+        )
+
+        trek.location = data.get(
+            'location',
+            trek.location
+        )
+
+        trek.difficulty = data.get(
+            'difficulty',
+            trek.difficulty
+        )
+
+        db.session.commit()
+
+        return {
+            'msg': 'trek updated'
+        }, 200
+
+    @jwt_required()
+    def delete(self, trek_id):
+
+        admin = User.query.get(
+            get_jwt_identity()
+        )
+
+        if admin.role != 'admin':
+            return {
+                'msg': 'access denied'
+            }, 403
+
+        trek = Trek.query.get(trek_id)
+
+        if not trek:
+            return {
+                'msg': 'trek not found'
+            }, 404
+
+        db.session.delete(trek)
+
+        db.session.commit()
+
+        return {
+            'msg': 'trek deleted'
+        }, 200
+
+
+class AdminAssignStaff(Resource):
+
+    @jwt_required()
+    def put(self, trek_id):
+
+        admin = User.query.get(
+            get_jwt_identity()
+        )
+
+        if admin.role != 'admin':
+            return {
+                'msg': 'access denied'
+            }, 403
+
+        trek = Trek.query.get(trek_id)
+
+        if not trek:
+            return {
+                'msg': 'trek not found'
+            }, 404
+
+        data = request.get_json() or {}
+
+        staff_id = data.get('staff_id')
+
+        staff = User.query.get(staff_id)
+
+        if not staff:
+            return {
+                'msg': 'staff not found'
+            }, 404
+
+        if staff.role != 'staff':
+            return {
+                'msg': 'user is not staff'
+            }, 400
+
+        staff_profile = StaffProfile.query.filter_by(
+            user_id=staff.id
+        ).first()
+
+        if not staff_profile:
+            return {
+                'msg': 'staff profile not found'
+            }, 404
+
+        trek.staff_id = staff_profile.id
+
+        db.session.commit()
+
+        return {
+            'msg': 'staff assigned'
+        }, 200
 
 class AdminBookingList(Resource):
 
+    @jwt_required()
     def get(self):
-        return {'msg': 'list bookings endpoint'}, 501
+
+        user_id = get_jwt_identity()
+
+        user = User.query.get(user_id)
+
+        if user.role != 'admin':
+            return {
+                'msg': 'access denied'
+            }, 403
+
+        return {
+            'msg': 'list bookings endpoint'
+        }, 501
 
 
-api.add_resource(AdminUserList, '/admin/users')
-api.add_resource(AdminTrekList, '/admin/treks')
-api.add_resource(AdminBookingList, '/admin/bookings')
+api.add_resource(
+    AdminDashboard,
+    '/admin/dashboard'
+)
+
+api.add_resource(
+    AdminUserList,
+    '/admin/users'
+)
+
+api.add_resource(
+    AdminTrekList,
+    '/admin/treks'
+)
+
+api.add_resource(
+    AdminBookingList,
+    '/admin/bookings'
+)
+
+api.add_resource(
+    AdminUserDetail,
+    '/admin/users/<int:user_id>'
+)
+
+api.add_resource(
+    AdminTrekDetail,
+    '/admin/treks/<int:trek_id>'
+)
+
+api.add_resource(
+    AdminAssignStaff,
+    '/admin/treks/<int:trek_id>/assign-staff'
+)
