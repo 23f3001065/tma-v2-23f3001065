@@ -74,7 +74,10 @@ router.beforeEach((to, from, next) => {
     const role = localStorage.getItem('role')
 
     if (to.meta.requiresAuth && !token) {
-        next('/login')
+        next({
+            path: '/login',
+            replace: true
+        })
         return
     }
 
@@ -82,7 +85,10 @@ router.beforeEach((to, from, next) => {
         to.meta.role &&
         to.meta.role !== role
     ) {
-        next('/login')
+        next({
+            path: '/login',
+            replace: true
+        })
         return
     }
 
