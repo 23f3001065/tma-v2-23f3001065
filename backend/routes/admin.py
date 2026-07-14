@@ -7,7 +7,7 @@ from flask_jwt_extended import (
     get_jwt_identity
 )
 
-from extensions import api, db
+from extensions import api, db, cache
 
 from models.user import User
 from models.trek import Trek
@@ -15,6 +15,8 @@ from models.booking import Booking
 
 
 class AdminDashboard(Resource):
+
+    @cache.cached(timeout=60)
 
     @jwt_required()
     def get(self):
@@ -190,6 +192,7 @@ class AdminTrekList(Resource):
 
         db.session.add(trek)
         db.session.commit()
+        cache.clear()
 
         return {
             'msg': 'trek created successfully'
@@ -277,6 +280,7 @@ class AdminTrekDetail(Resource):
         )
 
         db.session.commit()
+        cache.clear()
 
         return {
             'msg': 'trek updated'
@@ -304,6 +308,7 @@ class AdminTrekDetail(Resource):
         db.session.delete(trek)
 
         db.session.commit()
+        cache.clear()
 
         return {
             'msg': 'trek deleted'
@@ -359,6 +364,7 @@ class AdminAssignStaff(Resource):
         trek.staff_id = staff_profile.id
 
         db.session.commit()
+        cache.clear()
 
         return {
             'msg': 'staff assigned'

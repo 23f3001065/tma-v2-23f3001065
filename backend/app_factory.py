@@ -3,7 +3,7 @@ from flask_cors import CORS
 
 from routes import admin, auth, staff, trekker
 from config import Config
-from extensions import db, api, jwt
+from extensions import db, api, jwt, mail, cache
 
 from datetime import date
 
@@ -71,6 +71,9 @@ def create_app():
     db.init_app(app)
     api.init_app(app)
     jwt.init_app(app)
+
+    mail.init_app(app)
+    cache.init_app(app)
     
     # register_routes(app)
     register_routes()

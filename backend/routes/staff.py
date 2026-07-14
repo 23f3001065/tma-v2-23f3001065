@@ -5,7 +5,7 @@ from flask_jwt_extended import (
     get_jwt_identity
 )
 
-from extensions import api, db
+from extensions import api, db, cache
 
 from models.user import User
 from models.staff_profile import StaffProfile
@@ -50,6 +50,9 @@ class StaffProfileResource(Resource):
 
 
 class StaffTreks(Resource):
+    
+    @cache.cached(timeout=60)
+
     @jwt_required()
     def get(self):
 
@@ -166,6 +169,7 @@ class StaffTrekDetail(Resource):
         )
 
         db.session.commit()
+        cache.clear()
 
         return {
             'msg': 'trek updated'

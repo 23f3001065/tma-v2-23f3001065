@@ -5,7 +5,7 @@ from flask_jwt_extended import (
     get_jwt_identity
 )
 
-from extensions import api, db
+from extensions import api, db, cache
 
 from models.user import User
 from models.trek import Trek
@@ -13,6 +13,8 @@ from models.booking import Booking
 
 
 class TrekkerTrekList(Resource):
+
+    @cache.cached(timeout=60)
 
     @jwt_required()
     def get(self):
@@ -124,6 +126,7 @@ class TrekkerBookingList(Resource):
         trek.available_slots -= 1
 
         db.session.commit()
+        cache.clear()
 
         return {
             'msg': 'booking successful'
@@ -162,9 +165,11 @@ class TrekkerBookingDetail(Resource):
                 'msg': 'booking already cancelled'
             }, 400
 
+        booking.status = 'Cancelled'
         booking.trek.available_slots += 1
 
         db.session.commit()
+        cache.clear()
 
         return {
             'msg': 'booking cancelled'
