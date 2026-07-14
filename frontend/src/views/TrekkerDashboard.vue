@@ -80,10 +80,20 @@
             </button>
 
             <button
+                v-if="!bookedTrekIds.includes(trek.id)"
                 class="btn btn-success"
                 @click="bookTrek(trek.id)">
 
                 Book Trek
+
+            </button>
+
+            <button
+                v-else
+                class="btn btn-secondary"
+                disabled>
+
+                Already Booked
 
             </button>
 
@@ -175,8 +185,8 @@
                 {{ booking.status }}
 
             </p>
-
             <button
+                v-if="booking.status == 'Booked'"
                 class="btn btn-danger"
                 @click="cancelBooking(booking.id)">
 
@@ -388,7 +398,15 @@ export default {
 
           })
 
-      }
+      },
+
+      bookedTrekIds() {
+
+          return this.bookings
+              .filter(booking => booking.status == 'Booked')
+              .map(booking => booking.trek_id)
+
+      },
 
   },
   

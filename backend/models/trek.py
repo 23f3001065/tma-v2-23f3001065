@@ -88,5 +88,10 @@ class Trek(db.Model):
             "end_date": str(self.end_date),
             "status": self.status,
             "staff_id": self.staff_id,
-            "staff_name": staff_name
+            "staff_name": staff_name,
+            "participant_count": len([
+                booking
+                for booking in self.bookings
+                if booking.status == "Booked"
+            ])
         }

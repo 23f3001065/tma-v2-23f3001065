@@ -488,6 +488,55 @@
 
     </div>
 
+    <h3>
+
+        Bookings
+
+    </h3>
+
+    <input
+        class="form-control mb-3"
+        placeholder="Search bookings"
+        v-model="bookingSearch">
+
+    <table class="table table-bordered">
+
+        <thead>
+
+            <tr>
+
+                <th>Trekker</th>
+                <th>Email</th>
+                <th>Trek</th>
+                <th>Location</th>
+                <th>Status</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            <tr
+                v-for="booking in filteredBookings"
+                :key="booking.booking_id">
+
+                <td>{{ booking.trekker_name }}</td>
+
+                <td>{{ booking.email }}</td>
+
+                <td>{{ booking.trek_name }}</td>
+
+                <td>{{ booking.location }}</td>
+
+                <td>{{ booking.status }}</td>
+
+            </tr>
+
+        </tbody>
+
+    </table>
+
   </div>
 </template>
 
@@ -530,7 +579,10 @@ export default {
       selectedTrek: '',
       selectedStaff: '',
 
-      message: ''
+      message: '',
+
+      bookings: [],
+      bookingSearch: '',
 
     }
   },
@@ -542,6 +594,8 @@ export default {
     await this.fetchTreks()
 
     await this.fetchUsers()
+
+    await this.fetchBookings()
 
   },
 
@@ -593,7 +647,27 @@ export default {
 
           )
 
-      }
+      },
+
+        filteredBookings() {
+
+            return this.bookings.filter((booking) => {
+
+                const text = this.bookingSearch.toLowerCase()
+
+                return (
+
+                    booking.trekker_name.toLowerCase().includes(text) ||
+
+                    booking.email.toLowerCase().includes(text) ||
+
+                    booking.trek_name.toLowerCase().includes(text)
+
+                )
+
+            })
+
+        },
 
   },
 
@@ -1138,6 +1212,26 @@ async toggleUserStatus(user) {
             alert(this.message)
 
         }
+
+    },
+
+    async fetchBookings() {
+
+        const token = localStorage.getItem('token')
+
+        const response = await axios.get(
+
+            'http://127.0.0.1:5000/admin/bookings',
+
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+
+        )
+
+        this.bookings = response.data
 
     },
 

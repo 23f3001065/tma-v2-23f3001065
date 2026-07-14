@@ -39,6 +39,13 @@
 
             </p>
 
+            <p>
+
+                Registered Users :
+                {{ trek.participant_count }}
+
+            </p>
+
             <button class="btn btn-primary me-2"
             @click="viewDetails(trek.id)">
 
@@ -53,7 +60,8 @@
 
             </button>
 
-            <button class="btn btn-secondary">
+            <button class="btn btn-secondary"
+            @click="viewBookings(trek.id)">
 
                 View Reg. Users
 
@@ -132,6 +140,64 @@
                 </p>
 
             </div>
+
+            <div
+                v-if="selectedBookingTrek === trek.id"
+                class="mt-3">
+
+                <h5>
+
+                    Registered Users
+
+                </h5>
+
+                <table class="table table-bordered">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Name</th>
+
+                            <th>Email</th>
+
+                            <th>Status</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        <tr
+                            v-for="booking in selectedBookings"
+                            :key="booking.booking_id">
+
+                            <td>
+
+                                {{ booking.name }}
+
+                            </td>
+
+                            <td>
+
+                                {{ booking.email }}
+
+                            </td>
+
+                            <td>
+
+                                {{ booking.status }}
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
             
         </div>
 
@@ -153,6 +219,9 @@ export default {
       treks: [],
       selectedTrek: null,
       selectedTrekDetails: null,
+
+      selectedBookings: [],
+      selectedBookingTrek: null,
 
       updateForm: {
         available_slots: 0,
@@ -285,6 +354,40 @@ export default {
       this.selectedTrek = null
 
       this.fetchTreks()
+
+    },
+
+    async viewBookings(trekId) {
+
+        if (
+            this.selectedBookingTrek === trekId
+        ) {
+
+            this.selectedBookingTrek = null
+
+            this.selectedBookings = []
+
+            return
+
+        }
+
+        const token = localStorage.getItem('token')
+
+        const response = await axios.get(
+
+            `http://127.0.0.1:5000/staff/treks/${trekId}/bookings`,
+
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+
+        )
+
+        this.selectedBookingTrek = trekId
+
+        this.selectedBookings = response.data
 
     },
 

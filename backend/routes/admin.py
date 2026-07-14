@@ -369,18 +369,32 @@ class AdminBookingList(Resource):
     @jwt_required()
     def get(self):
 
-        user_id = get_jwt_identity()
-
-        user = User.query.get(user_id)
+        user = User.query.get(
+            get_jwt_identity()
+        )
 
         if user.role != 'admin':
             return {
                 'msg': 'access denied'
             }, 403
 
-        return {
-            'msg': 'list bookings endpoint'
-        }, 501
+        bookings = Booking.query.all()
+
+        return [
+
+            {
+                'booking_id': booking.id,
+                'trekker_name': booking.user.name,
+                'email': booking.user.email,
+                'trek_name': booking.trek.name,
+                'location': booking.trek.location,
+                'booking_date': str(booking.booking_date),
+                'status': booking.status
+            }
+
+            for booking in bookings
+
+        ], 200
 
 
 api.add_resource(
