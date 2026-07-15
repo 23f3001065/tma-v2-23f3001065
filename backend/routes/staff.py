@@ -50,8 +50,6 @@ class StaffProfileResource(Resource):
 
 
 class StaffTreks(Resource):
-    
-    @cache.cached(timeout=60)
 
     @jwt_required()
     def get(self):

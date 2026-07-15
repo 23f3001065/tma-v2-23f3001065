@@ -11,6 +11,26 @@ from models.user import User
 from models.trek import Trek
 from models.booking import Booking
 
+class TrekkerProfile(Resource):
+
+    @jwt_required()
+    def get(self):
+
+        user = User.query.get(
+            get_jwt_identity()
+        )
+
+        if user.role != 'trekker':
+            return {
+                'msg': 'access denied'
+            }, 403
+
+        return {
+            'id': user.id,
+            'name': user.name,
+            'email': user.email
+        }, 200
+
 class TrekkerTrekList(Resource):
 
     @cache.cached(timeout=60)
@@ -206,6 +226,7 @@ class TrekkerBookingDetail(Resource):
             'msg': 'booking cancelled'
         }, 200
 
+api.add_resource(TrekkerProfile, '/trekker/profile')
 api.add_resource(TrekkerTrekList, '/treks')
 api.add_resource(TrekkerTrekDetail, '/treks/<int:trek_id>')
 api.add_resource(TrekkerBookingList, '/bookings')

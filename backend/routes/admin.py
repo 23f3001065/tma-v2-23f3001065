@@ -175,6 +175,24 @@ class AdminTrekList(Resource):
 
         data = request.get_json() or {}
 
+        start_date = date.fromisoformat(
+            data['start_date']
+        )
+
+        end_date = date.fromisoformat(
+            data['end_date']
+        )
+
+        if end_date < start_date:
+            return {
+                'msg': 'end date must be after start date'
+            }, 400
+
+        if data['available_slots'] < 0:
+            return {
+                'msg': 'available slots cannot be negative'
+            }, 400
+
         trek = Trek(
             name=data['name'],
             location=data['location'],
@@ -182,12 +200,8 @@ class AdminTrekList(Resource):
             duration_days=data['duration_days'],
             description=data['description'],
             available_slots=data['available_slots'],
-            start_date=date.fromisoformat(
-                data['start_date']
-            ),
-            end_date=date.fromisoformat(
-                data['end_date']
-            )
+            start_date=start_date,
+            end_date=end_date
         )
 
         db.session.add(trek)
@@ -264,6 +278,35 @@ class AdminTrekDetail(Resource):
 
         data = request.get_json() or {}
 
+        start_date = date.fromisoformat(
+            data.get(
+                'start_date',
+                str(trek.start_date)
+            )
+        )
+
+        end_date = date.fromisoformat(
+            data.get(
+                'end_date',
+                str(trek.end_date)
+            )
+        )
+
+        if end_date < start_date:
+            return {
+                'msg': 'end date must be after start date'
+            }, 400
+
+        available_slots = data.get(
+            'available_slots',
+            trek.available_slots
+        )
+
+        if available_slots < 0:
+            return {
+                'msg': 'available slots cannot be negative'
+            }, 400
+
         trek.name = data.get(
             'name',
             trek.name
@@ -277,6 +320,27 @@ class AdminTrekDetail(Resource):
         trek.difficulty = data.get(
             'difficulty',
             trek.difficulty
+        )
+
+        trek.duration_days = data.get(
+            'duration_days',
+            trek.duration_days
+        )
+
+        trek.description = data.get(
+            'description',
+            trek.description
+        )
+
+        trek.available_slots = available_slots
+
+        trek.start_date = start_date
+
+        trek.end_date = end_date
+
+        trek.status = data.get(
+            'status',
+            trek.status
         )
 
         db.session.commit()

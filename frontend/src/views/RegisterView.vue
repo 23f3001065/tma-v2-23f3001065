@@ -41,6 +41,13 @@
 
     </form>
 
+    <p>
+        Already have an account?
+        <router-link to="/login">
+            Login
+        </router-link>
+    </p>
+
     <p>{{ message }}</p>
 
   </div>

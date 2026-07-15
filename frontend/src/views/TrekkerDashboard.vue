@@ -6,7 +6,7 @@
 
     <p>
 
-        Welcome Trekker
+        Welcome, <b>{{ user.name }}</b>
 
     </p>
 
@@ -219,6 +219,8 @@ export default {
 
     return {
 
+      user: {},
+
       treks: [],
       bookings: [],
       selectedTrek: null,
@@ -235,6 +237,26 @@ export default {
       localStorage.clear()
 
       this.$router.replace('/login')
+
+    },
+
+    async fetchProfile() {
+
+        const token = localStorage.getItem('token')
+
+        const response = await axios.get(
+
+            'http://127.0.0.1:5000/trekker/profile',
+
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+
+        )
+
+        this.user = response.data
 
     },
 
@@ -442,6 +464,7 @@ export default {
   
   mounted() {
 
+    this.fetchProfile()
     this.fetchTreks()
     this.fetchBookings()
 

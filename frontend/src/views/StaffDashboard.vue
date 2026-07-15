@@ -240,42 +240,42 @@ export default {
 
     },
 
-    async fetchProfile() {
-
-      const token = localStorage.getItem('token')
-
-      const response = await axios.get(
-
-        'http://127.0.0.1:5000/staff/profile',
-
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-
-      )
-
-      this.staff = response.data
-
-    },
 
     async fetchTreks() {
+      
+        this.treks = []
 
-      const token = localStorage.getItem('token')
+        const token = localStorage.getItem('token')
 
-      const response = await axios.get(
-        'http://127.0.0.1:5000/staff/treks',
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      )
+        const response = await axios.get(
+            'http://127.0.0.1:5000/staff/treks',
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        )
 
-      this.treks = response.data
+        this.treks = response.data
+    },
 
-    },   
+    async fetchProfile() {
+
+        this.staff = {}
+
+        const token = localStorage.getItem('token')
+
+        const response = await axios.get(
+            'http://127.0.0.1:5000/staff/profile',
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        )
+
+        this.staff = response.data
+    },
 
     async viewDetails(trekId) {
 
@@ -352,8 +352,6 @@ export default {
 
       await this.fetchTreks()
       this.selectedTrek = null
-
-      this.fetchTreks()
 
     },
 

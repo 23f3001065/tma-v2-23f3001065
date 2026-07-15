@@ -31,6 +31,13 @@
 
     </form>
 
+    <p>
+        Don't have an account?
+        <router-link to="/register">
+            Register
+        </router-link>
+    </p>
+
     <p>{{ message }}</p>
 
   </div>
