@@ -1,0 +1,66 @@
+.
+├── .gitignore
+├── .vscode
+│   └── settings.json
+├── README.md
+├── backend
+│   ├── .env
+│   ├── __pycache__
+│   ├── app.py
+│   ├── app_factory.py
+│   ├── celery_app.py
+│   ├── celerybeat-schedule
+│   ├── config.py
+│   ├── database
+│   │   └── tma.db
+│   ├── extensions.py
+│   ├── flask-app.py
+│   ├── models
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   ├── booking.py
+│   │   ├── staff_profile.py
+│   │   ├── trek.py
+│   │   └── user.py
+│   ├── requirements.txt
+│   ├── routes
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   ├── admin.py
+│   │   ├── auth.py
+│   │   ├── staff.py
+│   │   └── trekker.py
+│   └── tasks.py
+├── frontend
+│   ├── .editorconfig
+│   ├── .gitattributes
+│   ├── .gitignore
+│   ├── .oxlintrc.json
+│   ├── .prettierrc.json
+│   ├── .vscode
+│   │   ├── extensions.json
+│   │   └── settings.json
+│   ├── README.md
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── jsconfig.json
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── public
+│   │   └── favicon.ico
+│   ├── src
+│   │   ├── App.vue
+│   │   ├── main.js
+│   │   ├── router
+│   │   │   └── index.js
+│   │   ├── services
+│   │   └── views
+│   │       ├── AdminDashboard.vue
+│   │       ├── LoginView.vue
+│   │       ├── RegisterView.vue
+│   │       ├── StaffDashboard.vue
+│   │       ├── TrekkerDashboard.vue
+│   │       └── TreksView.vue
+│   └── vite.config.js
+└── project_structure.txt
+
