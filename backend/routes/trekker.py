@@ -11,7 +11,6 @@ from models.user import User
 from models.trek import Trek
 from models.booking import Booking
 
-
 class TrekkerTrekList(Resource):
 
     @cache.cached(timeout=60)
@@ -102,9 +101,19 @@ class TrekkerBookingList(Resource):
         ).first()
 
         if existing_booking:
+            if existing_booking.status == 'Booked':
+                return {
+                    'msg': 'you already booked this trek'
+                }, 400
+
+            existing_booking.status = 'Booked'
+            trek.available_slots -= 1
+            db.session.commit()
+            cache.clear()
+
             return {
-                'msg': 'you already booked this trek'
-            }, 400
+                'msg': 'booking successful'
+            }, 200
 
         if trek.status != 'Open':
             return {
@@ -131,6 +140,28 @@ class TrekkerBookingList(Resource):
         return {
             'msg': 'booking successful'
         }, 201
+
+    @jwt_required()
+    def put(self):
+
+        from tasks import export_booking_history
+
+        user = User.query.get(
+            get_jwt_identity()
+        )
+
+        if user.role != 'trekker':
+            return {
+                'msg': 'access denied'
+            }, 403
+
+        export_booking_history.delay(
+            user.id
+        )
+
+        return {
+            'msg': 'Booking history export started. Check your email.'
+        }, 200
 
 class TrekkerBookingDetail(Resource):
     def get(self, booking_id):

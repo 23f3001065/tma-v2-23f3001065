@@ -9,6 +9,16 @@ def home():
         "message": "Trekking Management Application API"
     }
 
+@app.get("/send-test-email")
+def send_email():
+
+    from tasks import send_test_email
+
+    send_test_email.delay()
+
+    return {
+        "msg": "Email queued successfully"
+    }
 
 if __name__ == "__main__":
     app.run(debug=True)

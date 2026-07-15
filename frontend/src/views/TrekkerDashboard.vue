@@ -18,6 +18,14 @@
 
     </button>
 
+  <button
+      class="btn btn-primary mb-4 ms-2"
+      @click="exportHistory">
+
+      Export Booking History
+
+  </button>
+
     <input
         class="form-control mb-3"
         type="text"
@@ -373,6 +381,28 @@ export default {
             )
 
         }
+
+    },
+
+    async exportHistory() {
+
+        const token = localStorage.getItem('token')
+
+        const response = await axios.put(
+
+            'http://127.0.0.1:5000/bookings',
+
+            {},
+
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+
+        )
+
+        alert(response.data.msg)
 
     }
 
